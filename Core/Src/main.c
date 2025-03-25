@@ -25,6 +25,8 @@
 
 #include "enhanced_logging.h"
 #include "wts_list_object.h"
+#include "menu.h"
+#include "flash_if.h"
 
 /* USER CODE END Includes */
 
@@ -72,6 +74,32 @@ static void MX_USART1_UART_Init(void);
 #define STATICTIMER_END(name)                               \
     name##_statictimer_tickstore = HAL_GetTick();           \
   }
+
+
+void go2APP(void)
+{
+  uint32_t JumpAddress;
+  pFunction Jump_To_Application;
+  printf("BOOTLOADER Start \r\n");
+
+  //check if there is something "installed" in the app FLASH region
+  if(((*(uint32_t*) APPLICATION_ADDRESS) & 0x2FFE0000) == 0x20000000)
+  {
+    printf("APP Start ...\r\n");
+    HAL_Delay(100);
+    //jump to the application
+    JumpAddress = *(uint32_t *) (APPLICATION_ADDRESS + 4 );
+    Jump_To_Application = (pFunction) JumpAddress;
+    //initialize application's stack pointer
+    __set_MSP(*(uint32_t *)APPLICATION_ADDRESS);
+    Jump_To_Application();
+  }
+  else
+  {
+    //there is no application installed
+    printf("No APP found\r\n");
+  }
+}
 
 /* USER CODE END 0 */
 
@@ -176,15 +204,15 @@ int main(void)
       }
       else if(strcmp(args[0], "download") == 0)
       {
-
+        SerialDownload();
       }
       else if(strcmp(args[0], "upload") == 0)
       {
-
+        SerialUpload();
       }
-      else if(strcmp(args[0], "mainmenu") == 0)
+      else if(strcmp(args[0], "run") == 0)
       {
-        Main_Menu();
+        go2APP();
       }
     }
 
