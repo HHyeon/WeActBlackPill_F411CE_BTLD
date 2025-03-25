@@ -27,9 +27,8 @@
 #include "ymodem.h"
 #include "string.h"
 #include "main.h"
-//#include "menu.h"
+#include "menu.h"
 
-uint8_t aFileName[FILE_NAME_LENGTH];
 
 extern UART_HandleTypeDef huart1;
 #define UartHandle huart1
